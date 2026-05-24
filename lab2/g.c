@@ -9,7 +9,6 @@
 // #undef DEBUG
 #define ISBIT(n,x) (((01<<(n))&(x))?1:0)
 
-// Вспомогательные функции из оригинального кода
 void outbyte( char byte) {
     int i;
     for ( i=7; i>-1; i-- )
@@ -92,10 +91,8 @@ int get_pixel(IMG *img, int x, int y) {
     return (img->data[byte_idx] >> bit) & 1;
 }
 
-// Структура для очереди BFS
 typedef struct { int x, y; } Point;
 
-// Вычисление всех характеристик для одного глифа
 void compute_stats(IMG *img) {
     int w = img->w, h = img->h;
     int total_pixels = 0;          // общее количество чёрных пикселей
@@ -111,7 +108,6 @@ void compute_stats(IMG *img) {
     int dx[4] = {1, -1, 0, 0};
     int dy[4] = {0, 0, 1, -1};
 
-    // Очередь для BFS (максимальный размер w*h)
     Point *queue = (Point *)malloc(w * h * sizeof(Point));
     if (!queue) {
         free(visited);
@@ -121,11 +117,9 @@ void compute_stats(IMG *img) {
     for (int y = 0; y < h; y++) {
         for (int x = 0; x < w; x++) {
             if (get_pixel(img, x, y) && !visited[y * w + x]) {
-                // Начало новой компоненты
                 conn++;
                 int area = 0;
                 int front = 0, rear = 0;
-                // Динамический список координат пикселей компоненты
                 Point *comp_points = (Point *)malloc(w * h * sizeof(Point));
                 if (!comp_points) {
                     free(queue);
@@ -151,7 +145,7 @@ void compute_stats(IMG *img) {
                     }
                 }
 
-                // Вычисление диаметра компоненты (максимальное расстояние между пикселями)
+                // максимальное расстояние между пикселями
                 double diam = 0.0;
                 if (area > 1) {
                     double max_sq = 0.0;
@@ -181,7 +175,7 @@ void compute_stats(IMG *img) {
     img->conn = conn;
     img->diam = (int)(max_diameter + 0.5);   // округление до целого
     img->perim = max_area;                   // используем perim для хранения max_area
-    // Вывод на экран (можно заменить на запись в файл)
+    // Вывод на экран
     printf("Glyph id %d: pixels=%d, components=%d, max_area=%d, max_diameter=%d\n",
            img->id, img->count, img->conn, img->perim, img->diam);
 }
